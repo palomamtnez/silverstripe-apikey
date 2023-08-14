@@ -7,6 +7,8 @@ use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Control\Middleware\HTTPMiddleware;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Security\IdentityStore;
 
 /**
  * Initialises the versioned stage when a request is made.
@@ -29,12 +31,12 @@ class ApiKeyRequestMiddleware implements HTTPMiddleware
             if (!$matchingKey) {
                 throw new HTTPResponse_Exception("Bad X-API-Key", 400);
             }
-
-            $matchingKey->Member()->logIn();
-
+//            $matchingKey->Member()->logIn();
+            Injector::inst()->get(IdentityStore::class)->logIn($matchingKey->Member(), false, $request);
             $matchingKey->markUsed();
         }
 
         return $delegate($request);
     }
 }
+
